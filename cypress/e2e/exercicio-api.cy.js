@@ -1,11 +1,13 @@
 /// <reference types="cypress" />
-import contrato from '../contracts/produtos.contract'
+import contrato from '../contracts/usuarios.contract'
 
 describe('Testes da Funcionalidade Usuários', () => {
 
-  it.only('Deve validar contrato de usuários', () => {
-    cy.request('produtos').then(response =>{
+  it('Deve validar contrato de usuários', () => {
+    cy.request('usuarios').then(response =>{
       return contrato.validateAsync(response.body)
+    }).should(response =>{
+      expect(response.status).equal(undefined)
     })
   });
 
@@ -13,6 +15,8 @@ describe('Testes da Funcionalidade Usuários', () => {
     cy.request({
       method: 'GET',
       url: 'usuarios'
+    }).should(response =>{
+      expect(response.status).equal(200)
     })
   });
 
@@ -26,7 +30,10 @@ describe('Testes da Funcionalidade Usuários', () => {
         "password": "teste",
         "administrador": "true"
       }
-    })
+    }).should((response) =>{
+      expect(response.status).equal(201)
+      expect(response.body.message).equal('Cadastro realizado com sucesso')
+  })
   });
 
   it('Deve validar um usuário com email inválido', () => {
@@ -39,7 +46,9 @@ describe('Testes da Funcionalidade Usuários', () => {
         "password": "teste",
         "administrador": "true"
       }, failOnStatusCode: false
-    })
+    }).should((response) =>{
+      expect(response.status).equal(400)
+  })
   });
 
   it('Deve editar um usuário previamente cadastrado', () => {
@@ -52,6 +61,8 @@ describe('Testes da Funcionalidade Usuários', () => {
         "password": "teste",
         "administrador": "true",
     },
+    }).should(response =>{
+      expect(response.status).equal(200)
     })
   });
 
@@ -59,6 +70,8 @@ describe('Testes da Funcionalidade Usuários', () => {
     cy.request({
       method: 'DELETE',
       url: 'usuarios' + '/7VKNDb59apmLRxiQ'
+    }).should(response =>{
+      expect(response.status).equal(200)
     })
   });
 
