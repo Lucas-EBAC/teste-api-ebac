@@ -1,13 +1,14 @@
 /// <reference types="cypress" />
 import contrato from '../contracts/usuarios.contract'
+import { faker } from '@faker-js/faker';
+
+
 
 describe('Testes da Funcionalidade Usuários', () => {
 
   it('Deve validar contrato de usuários', () => {
     cy.request('usuarios').then(response =>{
       return contrato.validateAsync(response.body)
-    }).should(response =>{
-      expect(response.status).equal(undefined)
     })
   });
 
@@ -17,6 +18,7 @@ describe('Testes da Funcionalidade Usuários', () => {
       url: 'usuarios'
     }).should(response =>{
       expect(response.status).equal(200)
+      expect(response.body).to.have.property('usuarios')
     })
   });
 
@@ -25,15 +27,15 @@ describe('Testes da Funcionalidade Usuários', () => {
       method: 'POST',
       url: 'usuarios',
       body: {
-        "nome": "João Silva",
-        "email": "joaosilva@qa.com.br",
-        "password": "teste",
+        "nome": faker.internet.userName(),
+        "email": faker.internet.email(),
+        "password": faker.internet.password(),
         "administrador": "true"
       }
-    }).should((response) =>{
+    }).should(response =>{
       expect(response.status).equal(201)
       expect(response.body.message).equal('Cadastro realizado com sucesso')
-  })
+    })
   });
 
   it('Deve validar um usuário com email inválido', () => {
@@ -47,6 +49,7 @@ describe('Testes da Funcionalidade Usuários', () => {
         "administrador": "true"
       }, failOnStatusCode: false
     }).should((response) =>{
+      expect(response.body.email).to.equal('email não pode ficar em branco')
       expect(response.status).equal(400)
   })
   });
@@ -63,15 +66,27 @@ describe('Testes da Funcionalidade Usuários', () => {
     },
     }).should(response =>{
       expect(response.status).equal(200)
+      expect(response.body.message).equal('Registro alterado com sucesso')
     })
   });
 
   it('Deve deletar um usuário previamente cadastrado', () => {
     cy.request({
       method: 'DELETE',
-      url: 'usuarios' + '/7VKNDb59apmLRxiQ'
+      url: 'usuarios' + '/7vXcMOwU1lwjm18p'
     }).should(response =>{
       expect(response.status).equal(200)
+      expect(response.body.message).equal('Registro excluído com sucesso')
+    })
+  });
+
+  it('Buscar usuario por ID', () => {
+    cy.request({
+      method: 'GET',
+      url: 'usuarios' + '/1WWqbwfssGDEEPDb'
+    }).should(response =>{
+      expect(response.status).equal(200)
+      expect(response.body.nome).equal('Lonny_Hills23')
     })
   });
 
